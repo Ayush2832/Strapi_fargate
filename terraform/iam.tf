@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ecs_task_exec_role" {
-  name = "ecsTaskExecutionRole3"
+  name = "ecsTaskExecutionRole4"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
