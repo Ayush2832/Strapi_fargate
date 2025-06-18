@@ -18,3 +18,64 @@ CMD ["npm", "run", "develop"]
 > docker build -t imagename .
 
 > docker run -d --name contname -p 1337:1337 --env-file .env imagemid
+
+## 2. Terraform files
+- In the terraform directory we have define the terraform files for different infrastructure.
+
+- For VPC network setup we have the file [vpc.tf](./terraform/vpc.tf)
+
+- For Load balancer we have the file [alb.tf](./terraform/alb.tf)
+
+- Then for ecs creation we have the file [ecs.tf](./terraform/ecs.tf)
+
+## 3. Github action files
+- Once all these things are configure we will then make `deploy.yml` file which will just checkout the code and then it make the docker image of it and then push the image to the docker hub.
+- Then at last it will run terraform init and terraform apply.
+
+- Here it will checkout the code and try ot login with the docker
+```yml
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+```
+
+- And then it will push the image to the docker registry
+
+```yml
+    - name: Build and Push Docker Images
+      uses: docker/build-push-action@v6
+      with:
+        context: ./strapi_task7
+        file: ./strapi_task7/Dockerfile
+        push: true
+        tags: ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
+```
+
+- And then we run the same terraform terraform init and apply command
+
+```yml
+    - name: terraform setup
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform init
+      run: terraform init
+      working-directory: ./terraform
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -var="image_tag=${{ env.IMAGE_TAG }}"
+      working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+```
+
+### 4. Result
+- Once we run the command
+> git push origin master
+- And it will trigger the pipeline.
