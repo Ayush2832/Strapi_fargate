@@ -79,3 +79,5 @@ CMD ["npm", "run", "develop"]
 - Once we run the command
 > git push origin master
 - And it will trigger the pipeline.
+
+<img src="./images/1.png" alt="result" width="500">
