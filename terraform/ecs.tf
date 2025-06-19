@@ -7,14 +7,6 @@ resource "aws_security_group" "strapi_sg" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    description = "Allow HTTP from anywhere"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 1337
     to_port     = 1337
     protocol    = "tcp"
@@ -33,8 +25,8 @@ resource "aws_ecs_task_definition" "strapi" {
   family                   = "strapi-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "512"
-  memory                   = "1024"
+  cpu                      = "1024"
+  memory                   = "3072"
   execution_role_arn       = aws_iam_role.ecs_task_exec_role.arn
 
   container_definitions = jsonencode([
@@ -65,12 +57,5 @@ resource "aws_ecs_service" "strapi" {
     assign_public_ip = true
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.tg.arn
-    container_name   = "strapi"
-    container_port   = 1337
-  }
-
-  depends_on = [aws_lb_listener.listener]
 }
 

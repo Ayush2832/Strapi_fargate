@@ -75,6 +75,17 @@ CMD ["npm", "run", "develop"]
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
 
+- For artifact I am following this blog 
+> [link](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow)
+
+```yml
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform statefile
+          path: ./terraform/terraform.tfstate
+```
+
 ### 4. Result
 - Once we run the command
 > git push origin master
