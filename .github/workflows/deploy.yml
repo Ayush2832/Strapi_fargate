@@ -2,7 +2,7 @@ name: Strapi_Fargate
 
 on:
   push:
-    branches: deploy # I dont want to trigger piepline to I change it into deploy
+    branches: master # I dont want to trigger piepline to I change it into deploy
 
 jobs:
   docker-image:

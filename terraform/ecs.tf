@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "main" {
-  name = "strapi-cluster"
+  name = var.strapi_cluster
 }
 
 resource "aws_security_group" "strapi_sg" {
@@ -27,12 +27,13 @@ resource "aws_ecs_task_definition" "strapi" {
   network_mode             = "awsvpc"
   cpu                      = "1024"
   memory                   = "3072"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
 
   container_definitions = jsonencode([
     {
       name      = "strapi"
-      image     = "ayush2832/strapi3:${var.image_tag}"
+      image     = "ayush2832/strapi2:v12"
       essential = true
       portMappings = [
         {
@@ -40,12 +41,21 @@ resource "aws_ecs_task_definition" "strapi" {
           hostPort      = 1337
         }
       ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = "/ecs/strapi"
+          awslogs-region = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 }
 
 resource "aws_ecs_service" "strapi" {
-  name            = "strapi-service"
+  name            = var.strapi_service
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.strapi.arn
   launch_type     = "FARGATE"

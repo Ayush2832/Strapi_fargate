@@ -20,3 +20,11 @@ variable "image_tag" {
   default = "v12"
 }
 
+#--ecs
+variable "strapi_cluster" {
+  default = "strapi-cluster"
+}
+variable "strapi_service" {
+  default = "strapi-service"
+}
+
