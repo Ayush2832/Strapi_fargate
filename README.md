@@ -1,4 +1,5 @@
-# Task7: Deploy a Strapi application on AWS using ECS Fargate, managed entirely via Terraform and Automate via GitHub Actions [ci/cd]
+# Task 7 and Task 8
+## Task 7: Deploy a Strapi application on AWS using ECS Fargate, managed entirely via Terraform and Automate via GitHub Actions [ci/cd]
 
 ## 1. Basic setup
 - First we have to setup our strapi app using
@@ -127,3 +128,132 @@ CMD ["npm", "run", "develop"]
 - And then we copy the ip from the ecs task and then paste in the browser.
 
 <img src="./images/2.png" alt="result" width="500">
+
+## Task 8 : Add CloudWatch for Monitoring (Logging & Metrics)
+- So first we create the IAM role for the ECS so that it can send logs to the cloudwatch
+
+```vim
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+```
+- Then we associate it with the service.
+
+```vim
+resource "aws_ecs_task_definition" "strapi" {
+  family                   = "strapi-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "3072"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn <<--
+```
+- Then we update the log configuration for the ecs task definition
+```vim
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = "/ecs/strapi"
+          awslogs-region = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+```
+
+- Finally we will create log group and then for dashboard we can define like this
+```vim
+resource "aws_cloudwatch_log_group" "strapi_logs" {
+  name              = "/ecs/strapi"
+  retention_in_days = 7
+
+  tags = {
+    Name = "Strapi-loggroup"
+  }
+}
+
+resource "aws_cloudwatch_dashboard" "dashboards" {
+  dashboard_name = "Strapi-ecs-dashboards"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type = "metric",
+        x = 0,
+        y = 0,
+        width = 10,
+        height = 7,
+
+        properties = {
+          title = "CPU utilization"
+          metrics = [
+            [
+              "AWS/ECS",
+              "CPUUtilization",
+              "ClusterName",
+              var.strapi_cluster,
+              "ServiceName",
+              var.strapi_service
+            ]
+          ]
+          period = 30, # we are getting data in each 30 sec
+          stat = "Average",
+          region = var.aws_region
+
+        },
+        
+      },
+      {
+        type = "metric"
+        x = 0,
+        y = 0,
+        width = 10,
+        height = 7,
+
+        properties = {
+          title = "Memory Utilization",
+          metrics = [
+            [
+              "AWS/ECS",
+              "MemoryUtilization",
+              "ClusterName",
+              var.strapi_cluster,
+              "ServiceName",
+              var.strapi_service
+            ]
+          ]
+          period = 30,
+          stat = "Average",
+          region = var.aws_region
+        }
+      },
+    ]
+  })
+  
+}
+```
+- Finally we trigger the pipline by pushing the code on github
+> git push origin master
+
+### Result
+- Then we navigate to the aws dashboard and we can see that the dashboard is created.
+<img src="images/3.png" width="500">
+
+- And also our application is working fine
+<img src="images/4.png" width="500">
