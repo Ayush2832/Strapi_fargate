@@ -17,7 +17,6 @@ variable "public_subnet_2" {
 
 # --- image tag
 variable "image_tag" {
-  default = "v12"
 }
 
 #--ecs

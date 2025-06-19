@@ -24,7 +24,7 @@ resource "aws_cloudwatch_dashboard" "dashboards" {
             [
               "AWS/ECS",
               "CPUUtilization",
-              "Cluster Name",
+              "ClusterName",
               var.strapi_cluster,
               "ServiceName",
               var.strapi_service
@@ -57,34 +57,10 @@ resource "aws_cloudwatch_dashboard" "dashboards" {
             ]
           ]
           period = 30,
-          stat = "Average"
+          stat = "Average",
           region = var.aws_region
         }
       },
-      {
-        type = "metric",
-        x = 0,
-        y = 0,
-        width = 10,
-        height = 7,
-        properties={
-          title = "Network IN/OUT"
-          metrics = [
-            [
-              "AWS/ECS",
-              "NetworkBytesIn",
-              "ClusterName", var.strapi_cluster,
-              "ServiceName", var.strapi_service
-            ],
-            [
-              ".","NetworkBytesOut",".",".",".","."
-            ]
-          ]
-          period = 30,
-          stat = "Average"
-          region = var.aws_region
-        }
-      }
     ]
   })
   
