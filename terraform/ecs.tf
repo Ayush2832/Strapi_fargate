@@ -27,7 +27,7 @@ resource "aws_ecs_task_definition" "strapi" {
   network_mode             = "awsvpc"
   cpu                      = "1024"
   memory                   = "3072"
-  execution_role_arn       = aws_iam_role.ecs_task_exec_role.arn
+
 
   container_definitions = jsonencode([
     {
