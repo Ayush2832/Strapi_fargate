@@ -1,4 +1,4 @@
-# Task 7 and Task 8
+# Task 7 and Task 8 and Task 9
 ## Task 7: Deploy a Strapi application on AWS using ECS Fargate, managed entirely via Terraform and Automate via GitHub Actions [ci/cd]
 
 ## 1. Basic setup
@@ -257,3 +257,24 @@ resource "aws_cloudwatch_dashboard" "dashboards" {
 
 - And also our application is working fine
 <img src="images/4.png" width="500">
+
+## Task 9: Running on Fragate Spote instead of Fragate
+- For this we have to make few changes in the ecs.tf
+
+
+- I service definition we have to comment the launch type and mention the task definition there
+```vim
+  # launch_type   = "FARGATE"
+
+  # And this block also if we dont want to use Fragate Spot
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight = 1
+  }
+```
+- And then run our pipline with
+> git push origin master
+
+- The resource which I followed are these > [link1](https://medium.com/@belka.zver/fargate-spot-quick-overview-and-set-up-using-terraform-a4974b1ae8f) [link2](https://medium.com/@maheshgaikwad128/understanding-ecs-fargate-and-fargate-spot-scaling-and-cost-optimization-with-terraform-1f9346aa2f8f)
+
+- Once all things done you can go console and see if the container is running or not.

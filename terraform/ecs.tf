@@ -34,6 +34,7 @@ resource "aws_ecs_task_definition" "strapi" {
     {
       name      = "strapi"
       image     = "ayush2832/strapi3:${var.image_tag}"
+      # image = "ayush2832/strapi3:v11"
       essential = true
       portMappings = [
         {
@@ -58,8 +59,15 @@ resource "aws_ecs_service" "strapi" {
   name            = var.strapi_service
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.strapi.arn
-  launch_type     = "FARGATE"
   desired_count   = 1
+  # launch_type   = "FARGATE"
+
+  # For Fargate we just need to mention the capacity provider stratergy and it will run the container in Fargate_Spot
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight = 1
+  }
+
 
   network_configuration {
     subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
