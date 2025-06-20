@@ -278,3 +278,12 @@ resource "aws_cloudwatch_dashboard" "dashboards" {
 - The resource which I followed are these > [link1](https://medium.com/@belka.zver/fargate-spot-quick-overview-and-set-up-using-terraform-a4974b1ae8f) [link2](https://medium.com/@maheshgaikwad128/understanding-ecs-fargate-and-fargate-spot-scaling-and-cost-optimization-with-terraform-1f9346aa2f8f)
 
 - Once all things done you can go console and see if the container is running or not.
+
+## Result
+- In the AWS console you can see the capacity provider is `FARGATE_SPOT`
+
+<img src="images/5.png" width="500">
+
+- And when we copy paste the IP, you can see the application is running fine
+
+<<img src="images/6.png" width="500">
